@@ -64,12 +64,17 @@ export default {
         series.propertyFields.stroke = "color";
 
         series.tooltipText = "{valueY.value}";
+        series.tooltip.getStrokeFromObject = true;
 
         var scrollbarX = new am4charts.XYChartScrollbar();
         scrollbarX.series.push(series);
         chart.scrollbarX = scrollbarX;
         chart.scrollbarX.parent = chart.bottomAxesContainer;
         chart.scrollbarX.minHeight = 30;
+
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.xAxis = XAxis;
+        chart.cursor.snapToSeries = series;
 
         chart.responsive.enabled = true;
 

@@ -1,11 +1,11 @@
 <template>
-<div class="container">
+<div class="m-3">
     <b-form-file
         v-model="file"
         :state="Boolean(file)"
         placeholder="choose or drop a signal raw file here"
         drop-placeholder="drop a signal raw file here"
-        @change="OnFileUpload"
+        @input="OnFileUpload"
     ></b-form-file>
     <img class="loading" src='https://cdn.dribbble.com/users/267/screenshots/1927432/loading.gif' v-if="this.$store.state.isLoading">
     <PlotSignal :rawData="signal" :label="label" v-if="show_plot"></PlotSignal>
@@ -23,7 +23,7 @@ export default{
     },
     data(){
         return{
-            file: "",
+            file: null,
             signal: "",
             label: "",
             show_plot: false, 
@@ -33,7 +33,7 @@ export default{
         OnFileUpload(e){
             this.show_plot = false;
             var formdata = new FormData();
-            this.file = e.target.files[0];
+            this.file = e;
             formdata.append("raw", this.file);
             apiPQRSTSendUploadFile(formdata)
             .then(res => {

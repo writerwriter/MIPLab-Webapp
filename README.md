@@ -22,3 +22,22 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## api
+```
+abnormal response = {
+    header: ...,
+    data: {
+        raw: Array of size [#channels, signal length],
+        abnormal_rate: Int,
+    }
+}
+hazard response = {
+    header: ...,
+    data: {
+        raw: Array of size [#channels, signal length],
+        hazard: Int array of size [#hazards],
+    }
+}
+
+```

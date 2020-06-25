@@ -37,7 +37,7 @@ export default{
             formdata.append("raw", this.file);
             apiPQRSTSendUploadFile(formdata)
             .then(res => {
-                this.signal = res.data.raw;
+                this.signal = res.data.raw[0][0];
                 this.label = res.data.label[0];
                 this.show_plot = true;
             })

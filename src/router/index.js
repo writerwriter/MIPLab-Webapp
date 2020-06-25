@@ -31,7 +31,7 @@ Vue.use(VueRouter)
     {
       path: '/Abnormal',
       name: 'Abnormal',
-      components: () => import("../views/Abnormal.vue")
+      component: () => import('../views/Abnormal.vue')
     }
 ]
 

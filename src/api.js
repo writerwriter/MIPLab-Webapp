@@ -2,7 +2,7 @@ import axios from 'axios';
 import store from './store';
 
 const PQRSTRequest = axios.create({
-  baseURL: 'http://127.0.0.1:5000'
+  baseURL: 'http://gpu4.mip.nctu.me:8888'
 });
 
 const ABRequest = axios.create({

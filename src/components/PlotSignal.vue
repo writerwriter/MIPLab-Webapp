@@ -1,6 +1,21 @@
 <template>
 <div>
     <div class="chart" ref="chart"></div>
+    <b-container fluid>
+        <b-row fluid class="justify-content-center mb-2">
+            <b-button-group>
+                <b-button variant="primary" :pressed="mode=='View'" @click="OnModeChange">View</b-button>
+                <b-button variant="primary" :pressed="mode=='Edit'" @click="OnModeChange">Edit</b-button>
+            </b-button-group>
+        </b-row>
+        <b-row fluid class="justify-content-center">
+            <b-button-group v-if="mode=='Edit'">
+                <b-button variant="danger" :pressed="colorMode=='P'" @click="OnColorChange">P</b-button>
+                <b-button variant="success" :pressed="colorMode=='QRS'" @click="OnColorChange">QRS</b-button>
+                <b-button variant="primary" :pressed="colorMode=='T'" @click="OnColorChange">T</b-button>
+            </b-button-group>
+        </b-row>
+    </b-container>
 </div>
 </template>
 <script>
@@ -15,24 +30,13 @@ export default {
     data() {
         return {
             colors: ["black", "red", "green", "blue"],
-        }
-    },
-    watch: {
-        rawData: function(){        
-            console.log("test");
-            var data = [];
-            for(var i = 0; i < this.rawData.length; i++){
-                data.push({X: i ,Y: this.rawData[i]})
-                data[i].color = am4core.color(this.colors[0]);
-                for(var j = 0; j < this.label.length; j++){
-                    if(this.label[j][i] == 1){
-                        data[i].color = am4core.color(this.colors[j]);
-                        break;
-                    }
-                }
-            }
-            this.chart.data = data;
-            this.chart.invalidateRawData();
+            mode: "View",
+            colorMode: "P",
+            labels: {
+                "p" : [],
+                "qrs": [],
+                "t": []
+                },
         }
     },
     mounted(){
@@ -79,9 +83,67 @@ export default {
         chart.responsive.enabled = true;
 
         this.chart = chart;
+        this.xAxis = XAxis;
     },
-    methods:{
+    methods: {
+        OnModeChange(e){
+            this.mode = e.target.innerText;
+            if(this.mode == "Edit"){
+                this.chart.cursor.behavior = "selectX";
+                this.chart.cursor.events.on("selectended", (e) => {
+                    var range = e.target.xRange;
+                    var axis = this.chart.xAxes.getIndex(0);
+                    var from = axis.getPositionLabel(axis.toAxisPosition(range.start));
+                    var to = axis.getPositionLabel(axis.toAxisPosition(range.end));
+                    console.log("Selected from " + from + "to" + to);
 
+
+                    this.labels[this.colorMode.toLowerCase()].push([Math.ceil(parseFloat(from.replace(/,/g, ''))), Math.floor(parseFloat(to.replace(/,/g, '')))]);
+
+                    var label = this.ConvertDicToLabel();
+                    for(var i = 0; i < this.rawData.length; i++){
+                        this.chart.data[i].color = am4core.color(this.colors[0]);
+                        for(var j = 0; j < label.length; j++){
+                            if(label[j][i] == 1){
+                                this.chart.data[i].color = am4core.color(this.colors[j]);
+                                break;
+                            }
+                        }
+                    }
+                    this.chart.invalidateRawData();
+
+                })
+            }
+        },
+        OnColorChange(e){
+            this.colorMode = e.target.innerText;
+        },
+        ConvertDicToLabel(){
+            var p_table = this.labels["p"];
+            var qrs_table = this.labels["qrs"];
+            var t_table = this.labels["t"];
+            var label = [];
+            var i, j;
+            for(i = 0; i < 4; i++){
+                label.push((new Array(this.rawData.length).fill(0)));
+            }
+            for(i = 0; i < p_table.length; i++){
+                for(j = p_table[i][0]; j < p_table[i][1]; j++){
+                    label[1][j] = 1;
+                }
+            }
+            for(i = 0; i < qrs_table.length; i++){
+                for(j = qrs_table[i][0]; j < qrs_table[i][1]; j++){
+                    label[2][j] = 1;
+                }
+            }
+            for(i = 0; i < t_table.length; i++){
+                for(j = t_table[i][0]; j < t_table[i][1]; j++){
+                    label[3][j] = 1;
+                }
+            }
+            return label;
+        }
     },
 
 }

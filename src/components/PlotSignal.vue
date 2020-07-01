@@ -15,6 +15,9 @@
                 <b-button variant="primary" :pressed="colorMode=='T'" @click="OnColorChange">T</b-button>
             </b-button-group>
         </b-row>
+        <b-row>
+            <b-button variant="primary" @click="OnDownloadClick">Download</b-button>
+        </b-row>
     </b-container>
 </div>
 </template>
@@ -90,30 +93,34 @@ export default {
             this.mode = e.target.innerText;
             if(this.mode == "Edit"){
                 this.chart.cursor.behavior = "selectX";
-                this.chart.cursor.events.on("selectended", (e) => {
-                    var range = e.target.xRange;
-                    var axis = this.chart.xAxes.getIndex(0);
-                    var from = axis.getPositionLabel(axis.toAxisPosition(range.start));
-                    var to = axis.getPositionLabel(axis.toAxisPosition(range.end));
-                    console.log("Selected from " + from + "to" + to);
-
-
-                    this.labels[this.colorMode.toLowerCase()].push([Math.ceil(parseFloat(from.replace(/,/g, ''))), Math.floor(parseFloat(to.replace(/,/g, '')))]);
-
-                    var label = this.ConvertDicToLabel();
-                    for(var i = 0; i < this.rawData.length; i++){
-                        this.chart.data[i].color = am4core.color(this.colors[0]);
-                        for(var j = 0; j < label.length; j++){
-                            if(label[j][i] == 1){
-                                this.chart.data[i].color = am4core.color(this.colors[j]);
-                                break;
-                            }
-                        }
-                    }
-                    this.chart.invalidateRawData();
-
-                })
+                this.chart.cursor.events.on("selectended", this.handleEditEvent);
             }
+            else{
+                this.chart.cursor.behavior = "zoomX";
+                this.chart.cursor.events.off("selectended", this.handleEditEvent);
+            }
+        },
+        handleEditEvent(e){
+            var range = e.target.xRange;
+            var axis = this.chart.xAxes.getIndex(0);
+            var from = axis.getPositionLabel(axis.toAxisPosition(range.start));
+            var to = axis.getPositionLabel(axis.toAxisPosition(range.end));
+            console.log("Selected from " + from + "to" + to);
+
+
+            this.labels[this.colorMode.toLowerCase()].push([Math.ceil(parseFloat(from.replace(/,/g, ''))), Math.floor(parseFloat(to.replace(/,/g, '')))]);
+
+            var label = this.ConvertDicToLabel();
+            for(var i = 0; i < this.rawData.length; i++){
+                this.chart.data[i].color = am4core.color(this.colors[0]);
+                for(var j = 0; j < label.length; j++){
+                    if(label[j][i] == 1){
+                        this.chart.data[i].color = am4core.color(this.colors[j]);
+                        break;
+                    }
+                }
+            }
+            this.chart.invalidateRawData();
         },
         OnColorChange(e){
             this.colorMode = e.target.innerText;
@@ -143,6 +150,14 @@ export default {
                 }
             }
             return label;
+        },
+        OnDownloadClick(){
+            this.blob = new Blob([JSON.stringify(this.labels)], {type: "application/json"});
+            this.url = window.URL.createObjectURL(this.blob);
+            var a = document.createElement('a');
+            a.href = this.url;
+            a.download = 'label.json';
+            a.click();
         }
     },
 

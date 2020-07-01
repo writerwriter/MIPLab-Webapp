@@ -31,19 +31,21 @@ export default{
     },
     methods: {
         OnFileUpload(e){
-            this.show_plot = false;
-            var formdata = new FormData();
-            this.file = e;
-            formdata.append("raw", this.file);
-            apiPQRSTSendUploadFile(formdata)
-            .then(res => {
-                this.signal = res.data.raw[0][0];
-                this.label = res.data.label[0];
-                this.show_plot = true;
-            })
-            .catch(res => {
-                console.log(res);
-            });
+            if(e != null){
+                this.show_plot = false;
+                var formdata = new FormData();
+                this.file = e;
+                formdata.append("raw", this.file);
+                apiPQRSTSendUploadFile(formdata)
+                .then(res => {
+                    this.signal = res.data.raw[0][0];
+                    this.label = res.data.label[0];
+                    this.show_plot = true;
+                })
+                .catch(res => {
+                    console.log(res);
+                });
+            }
         }
     }
 }

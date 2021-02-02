@@ -1,5 +1,6 @@
 <template>
 <div class="m-3">
+    <!--
     <b-form-file
         v-model="file"
         :state="Boolean(file)"
@@ -7,52 +8,27 @@
         drop-placeholder="drop a signal raw file here"
         @input="OnFileUpload"
     ></b-form-file>
-    <img class="loading" src='https://cdn.dribbble.com/users/267/screenshots/1927432/loading.gif' v-if="this.$store.state.isLoading">
-    <PlotSignal :rawData="signal" :label="label" v-if="show_plot"></PlotSignal>
+    -->
+    <img class="loading" src='https://media.tenor.com/images/97cc6a6dc0c7479a293b8071f32fbf74/tenor.gif' v-if="this.$store.state.PQRST.isLoading">
+    <!--
+    <PlotPQRSTSignal :rawData="this.$store.state.ECG" :label="this.$store.state.PQRST.label" v-if="this.$store.state.PQRST.label != null && this.$store.state.PQRST.isLoading == false"></PlotPQRSTSignal>
+    -->
+    <PlotSignal :rawData="this.$store.state.ECG" :label='this.$store.state.PQRST.label' :type='"PQRST"' v-if='this.$store.state.PQRST.label != null && this.$store.state.PQRST.isLoading == false'></PlotSignal>
 </div>
 </template>
 
 <script>
+//import PlotPQRSTSignal from '@/components/PlotPQRSTSignal.vue'
 import PlotSignal from '@/components/PlotSignal.vue'
-import {apiPQRSTSendUploadFile} from '@/api.js'
+//import {apiPQRSTSendUploadFile} from '@/api.js'
 
 export default{
     name: "PQRST",
     components: {
         PlotSignal,
-    },
-    data(){
-        return{
-            file: null,
-            signal: "",
-            label: "",
-            show_plot: false, 
-        }
-    },
-    methods: {
-        OnFileUpload(e){
-            if(e != null){
-                this.show_plot = false;
-                var formdata = new FormData();
-                this.file = e;
-                formdata.append("raw", this.file);
-                apiPQRSTSendUploadFile(formdata)
-                .then(res => {
-                    this.signal = res.data.raw[0][0];
-                    this.label = res.data.label[0];
-                    this.show_plot = true;
-                })
-                .catch(res => {
-                    console.log(res);
-                });
-            }
-        }
     }
 }
-
 </script>
+
 <style scoped>
-.loading {
-    height: 70vh;
-}
 </style>

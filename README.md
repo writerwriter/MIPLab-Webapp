@@ -29,14 +29,14 @@ abnormal response = {
     header: ...,
     data: {
         raw: Array of size [#channels, signal length],
-        abnormal_rate: Int,
+        abnormal_rate: Float,
     }
 }
 hazard response = {
     header: ...,
     data: {
         raw: Array of size [#channels, signal length],
-        hazard: Int array of size [#hazards],
+        hazard: Float array of size [#hazards],
     }
 }
 

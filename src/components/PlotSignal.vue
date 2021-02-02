@@ -1,60 +1,46 @@
 <template>
-<div>
-    <div class="chart" ref="chart"></div>
-    <b-container fluid>
-        <b-row fluid class="justify-content-center mb-2">
-            <b-button-group>
-                <b-button variant="primary" :pressed="mode=='View'" @click="OnModeChange">View</b-button>
-                <b-button variant="primary" :pressed="mode=='Edit'" @click="OnModeChange">Edit</b-button>
-            </b-button-group>
-        </b-row>
-        <b-row fluid class="justify-content-center">
-            <b-button-group v-if="mode=='Edit'">
-                <b-button variant="danger" :pressed="colorMode=='P'" @click="OnColorChange">P</b-button>
-                <b-button variant="success" :pressed="colorMode=='QRS'" @click="OnColorChange">QRS</b-button>
-                <b-button variant="primary" :pressed="colorMode=='T'" @click="OnColorChange">T</b-button>
-            </b-button-group>
-        </b-row>
-        <b-row>
-            <b-button variant="primary" @click="OnDownloadClick">Download</b-button>
-        </b-row>
-    </b-container>
-</div>
+    <div>
+        <div class='chart' ref='chart'></div>
+    </div>
 </template>
+
 <script>
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-
 am4core.useTheme(am4themes_animated);
+
 export default {
     names: "PlotSignal",
-    props: ['rawData', 'label'],
-    data() {
+    props: ['rawData', 'label', 'label2', 'type'],
+    data(){
         return {
-            colors: ["black", "red", "green", "blue"],
-            mode: "View",
-            colorMode: "P",
-            labels: {
-                "p" : [],
-                "qrs": [],
-                "t": []
-                },
+            colors: ["black", "#47e0ff", "#ffaf38", "#f71111", "black", "blue", "red", "green"],
         }
     },
     mounted(){
         var chart = am4core.create(this.$refs.chart, am4charts.XYChart);
         chart.paddingRight = 20;
-        
+
         var data = [];
         for(var i = 0; i < this.rawData.length; i++){
-            data.push({X: i ,Y: this.rawData[i]})
+            data.push({X: i, Y: this.rawData[i]});
             data[i].color = am4core.color(this.colors[0]);
-            for(var j = 0; j < this.label.length; j++){
-                if(this.label[j][i] == 1){
-                    data[i].color = am4core.color(this.colors[j]);
-                    break;
+            /*
+            change color based on label format
+            */
+            if(this.type == 'PQRST' || this.type == 'PQRST&&Arrhythmia'){
+                for(var j = 0; j < this.label.length; j++){
+                    if(this.label[j][i] == 1){
+                        data[i].color = am4core.color(this.colors[j+4]);
+                        break;
+                    }
                 }
+            }
+            else if(this.type == 'S1S2'){
+                data[i].Y_label = this.label[i];
+                data[i].color = am4core.color(this.colors[0]);
+                data[i].color_label = am4core.color(this.colors[6]);
             }
         }
         chart.data = data;
@@ -65,13 +51,96 @@ export default {
         chart.yAxes.push(new am4charts.ValueAxis());
 
         var series = chart.series.push(new am4charts.LineSeries());
-        series.dataFields.valueX = "X";
-        series.dataFields.valueY = "Y";
+        series.dataFields.valueX = 'X';
+        series.dataFields.valueY = 'Y';
         series.strokeWidth = 2;
-        series.propertyFields.stroke = "color";
-
-        series.tooltipText = "{valueY.value}";
+        series.propertyFields.stroke = 'color';
+        series.tooltipText = '{valueY.value}';
         series.tooltip.getStrokeFromObject = true;
+        series.data = data;
+
+        if(this.type == 'Arrhythmia' || this.type == 'PQRST&&Arrhythmia'){
+            var label_data = []
+            for(i = 0; i < this.label2.length; i++){
+                label_data.push({
+                    X: this.label2[i][0], 
+                    Y: Math.max(...this.rawData) * 1.5 + 20, 
+                    color: am4core.color(this.colors[this.label2[i][1]+1])});
+                switch(this.label2[i][1]){
+                    case 0: label_data[i].label = 'N'; break;
+                    case 1: label_data[i].label = 'S'; break;
+                    case 2: label_data[i].label = 'V'; break;
+                    case 3: label_data[i].label = 'Other'; break;
+                }
+            }
+            if(label_data.length != 0){
+                var series2 = chart.series.push(new am4charts.LineSeries());
+                series2.dataFields.valueX = 'X';
+                series2.dataFields.valueY = 'Y';
+                series2.strokeOpacity = 0;
+                series2.data = label_data;
+                var bullet = series2.bullets.push(new am4charts.Bullet());
+                bullet.propertyFields.fill = 'color';
+                var arrow = bullet.createChild(am4core.Triangle);
+                arrow.opacity = 0.8;
+                arrow.horizontalCenter = "middle";
+                arrow.verticalCenter = "middle";
+                arrow.direction = "bottom";
+                arrow.strokeWidth = 0;
+                arrow.width = 25;
+                arrow.height = 35;
+                var labelBullet = series2.bullets.push(new am4charts.LabelBullet());
+                labelBullet.label.text = "{label}";
+                labelBullet.label.dy = -5;
+                labelBullet.label.fontSize = 13;
+                labelBullet.label.fill = am4core.color("white");
+            }
+        }
+
+        else if(this.type == 'S1S2'){
+            label_data = [];
+            for(i = 0; i < this.label[0].length; i++){
+                label_data.push({
+                    X: this.label[0][i],
+                    Y: Math.max(...this.rawData) * 1.5,
+                    color: am4core.color(this.colors[1])});
+                label_data[i].label = '1';
+            }
+            for(i = 0; i < this.label[1].length; i++){
+                label_data.push({
+                    X: this.label[1][i],
+                    Y: Math.max(...this.rawData) * 1.5,
+                    color: am4core.color(this.colors[2])});
+                label_data[i+this.label[0].length].label = '2';
+            }
+
+            if(label_data.length != 0){
+                series2 = chart.series.push(new am4charts.LineSeries());
+                series2.dataFields.valueX = 'X';
+                series2.dataFields.valueY = 'Y';
+                series2.strokeOpacity = 0;
+                series2.data = label_data;
+
+                bullet = series2.bullets.push(new am4charts.Bullet());
+                bullet.propertyFields.fill = 'color';
+
+                arrow = bullet.createChild(am4core.Triangle);
+                arrow.opacity = 0.8;
+                arrow.horizontalCenter = "middle";
+                //arrow.verticalCenter = "middle";
+                arrow.direction = "bottom";
+                arrow.strokeWidth = 0;
+                arrow.width = 25;
+                arrow.height = 35;
+
+                labelBullet = series2.bullets.push(new am4charts.LabelBullet());
+                labelBullet.label.text = "{label}";
+                labelBullet.label.dy = 15;
+                labelBullet.label.fontSize = 13;
+                labelBullet.label.fill = am4core.color("white");
+            }
+            
+        }
 
         var scrollbarX = new am4charts.XYChartScrollbar();
         scrollbarX.series.push(series);
@@ -81,91 +150,18 @@ export default {
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = XAxis;
-        chart.cursor.snapToSeries = series;
 
         chart.responsive.enabled = true;
 
         this.chart = chart;
         this.xAxis = XAxis;
-    },
-    methods: {
-        OnModeChange(e){
-            this.mode = e.target.innerText;
-            if(this.mode == "Edit"){
-                this.chart.cursor.behavior = "selectX";
-                this.chart.cursor.events.on("selectended", this.handleEditEvent);
-            }
-            else{
-                this.chart.cursor.behavior = "zoomX";
-                this.chart.cursor.events.off("selectended", this.handleEditEvent);
-            }
-        },
-        handleEditEvent(e){
-            var range = e.target.xRange;
-            var axis = this.chart.xAxes.getIndex(0);
-            var from = axis.getPositionLabel(axis.toAxisPosition(range.start));
-            var to = axis.getPositionLabel(axis.toAxisPosition(range.end));
-            console.log("Selected from " + from + "to" + to);
-
-
-            this.labels[this.colorMode.toLowerCase()].push([Math.ceil(parseFloat(from.replace(/,/g, ''))), Math.floor(parseFloat(to.replace(/,/g, '')))]);
-
-            var label = this.ConvertDicToLabel();
-            for(var i = 0; i < this.rawData.length; i++){
-                this.chart.data[i].color = am4core.color(this.colors[0]);
-                for(var j = 0; j < label.length; j++){
-                    if(label[j][i] == 1){
-                        this.chart.data[i].color = am4core.color(this.colors[j]);
-                        break;
-                    }
-                }
-            }
-            this.chart.invalidateRawData();
-        },
-        OnColorChange(e){
-            this.colorMode = e.target.innerText;
-        },
-        ConvertDicToLabel(){
-            var p_table = this.labels["p"];
-            var qrs_table = this.labels["qrs"];
-            var t_table = this.labels["t"];
-            var label = [];
-            var i, j;
-            for(i = 0; i < 4; i++){
-                label.push((new Array(this.rawData.length).fill(0)));
-            }
-            for(i = 0; i < p_table.length; i++){
-                for(j = p_table[i][0]; j < p_table[i][1]; j++){
-                    label[1][j] = 1;
-                }
-            }
-            for(i = 0; i < qrs_table.length; i++){
-                for(j = qrs_table[i][0]; j < qrs_table[i][1]; j++){
-                    label[2][j] = 1;
-                }
-            }
-            for(i = 0; i < t_table.length; i++){
-                for(j = t_table[i][0]; j < t_table[i][1]; j++){
-                    label[3][j] = 1;
-                }
-            }
-            return label;
-        },
-        OnDownloadClick(){
-            this.blob = new Blob([JSON.stringify(this.labels)], {type: "application/json"});
-            this.url = window.URL.createObjectURL(this.blob);
-            var a = document.createElement('a');
-            a.href = this.url;
-            a.download = 'label.json';
-            a.click();
-        }
-    },
-
+    }
 }
 </script>
+
 <style scoped>
 .chart {
-  width: 100%;
-  height: 70vh;
+    width: 100%;
+    height: 40vh;
 }
 </style>

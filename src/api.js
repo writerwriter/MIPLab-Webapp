@@ -1,37 +1,51 @@
 import axios from 'axios';
 import store from './store';
 
+//const proxyurl = 'https://cors-anywhere.herokuapp.com/'
+
+const FileIO = axios.create({
+  baseURL: 'http://gpu4.miplab.org:8899'
+});
+
 const PQRSTRequest = axios.create({
-  baseURL: 'http://gpu4.mip.nctu.me:8888'
+  baseURL: 'http://gpu4.miplab.org:8899'
 });
 
 const ABRequest = axios.create({
-  baseURL: 'http://127.0.0.1:5001'
+  baseURL: 'http://gpu4.miplab.org:8787'
 })
 
-const HPRequest = axios.create({
-  baseURL: 'http://127.0.0.1:5002'
+const ArrRequest = axios.create({
+  baseURL: 'http://gpu4.miplab.org:8890'
 })
 
-PQRSTRequest.interceptors.request.use((config) => {
-    store.commit("Loading");
-    return config;
-  }, (error) => {
-    store.commit("Loaded");
-    return Promise.reject(error);
-});
-  
-PQRSTRequest.interceptors.response.use((response) => {
-    store.commit("Loaded");
-    return response;
-  }, (error) => {
-    store.commit("Loaded");
-    return Promise.reject(error);
+const PCGRequest = axios.create({
+  baseURL: 'http://gpu4.miplab.org:8990'
+})
+
+
+FileIO.interceptors.request.use((config) => {
+  store.commit("Loading");
+  return config;
+}, (error) => {
+  store.commit("Loaded");
+  return Promise.reject(error);
 });
 
+FileIO.interceptors.response.use((response) => {
+  store.commit("Loaded");
+  return response;
+}, (error) => {
+  store.commit("Loaded");
+  return Promise.reject(error);
+})
 
-export const apiPQRSTSendUploadFile = data => PQRSTRequest.post('/UploadFile', data);
+export const apiFileUpload = data => FileIO.post('/UploadFile', data);
 
-export const apiABResult = data => ABRequest.post('/submit_ekg', data);
+export const apiPQRSTResult = data => PQRSTRequest.post('/submit_PQRST', data);
 
-export const apiHPResult = data => HPRequest.post('/submit_ekg', data);
+export const apiABResult = data => ABRequest.post('/submit_abnormal', data);
+
+export const apiArrResult = data => ArrRequest.post('/submit_arrhythmia', data);
+
+export const apiPCGResult = data => PCGRequest.post('/submit_S1', data);

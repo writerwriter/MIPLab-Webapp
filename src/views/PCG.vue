@@ -1,7 +1,7 @@
 <template>
     <div class='m-3'>
         <img class="loading" src='https://media.tenor.com/images/97cc6a6dc0c7479a293b8071f32fbf74/tenor.gif' v-if="this.$store.state.PQRST.isLoading">
-        <PlotSignal :rawData="this.$store.state.PCG" :label="this.$store.state.S1S2.label" :type="'S1S2'" v-if="this.$store.state.S1S2.label != null && this.$store.state.S1S2.isLoading == false"></PlotSignal>
+        <PlotSignal :rawData="this.$store.state.S1S2.PCG" :label="this.$store.state.S1S2.label" :type="'S1S2'" v-if="this.$store.state.S1S2.label != null && this.$store.state.S1S2.isLoading == false"></PlotSignal>
     </div>
 </template>
 

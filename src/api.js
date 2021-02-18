@@ -7,6 +7,11 @@ const FileIO = axios.create({
   baseURL: 'http://gpu4.miplab.org:8899'
 });
 
+const FileIO2 = axios.create({
+  baseURL: 'http://gpu3.miplab.org:8899'
+});
+
+
 const PQRSTRequest = axios.create({
   baseURL: 'http://gpu4.miplab.org:8899'
 });
@@ -41,6 +46,8 @@ FileIO.interceptors.response.use((response) => {
 })
 
 export const apiFileUpload = data => FileIO.post('/UploadFile', data);
+
+export const apiFileSave = data => FileIO2.post('/SaveFile', data);
 
 export const apiPQRSTResult = data => PQRSTRequest.post('/submit_PQRST', data);
 

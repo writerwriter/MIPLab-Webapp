@@ -7,6 +7,7 @@ import {apiPQRSTResult, apiArrResult, apiABResult, apiPCGResult} from '@/api'
 
 export default new Vuex.Store({
   state: {
+    file: null,
     isLoading: false,
     ECG: null,
     PCG: null,
@@ -31,6 +32,9 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    SaveFile(state, uploadfile){
+      state.file = uploadfile;
+    },
     SaveSnpData(state, snp) {
       state.ECG = snp.ECG;
       state.PCG = snp.PCG;

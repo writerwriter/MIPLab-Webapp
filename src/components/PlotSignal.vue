@@ -21,7 +21,6 @@ export default {
     mounted(){
         var chart = am4core.create(this.$refs.chart, am4charts.XYChart);
         chart.paddingRight = 20;
-
         var data = [];
         for(var i = 0; i < this.rawData.length; i++){
             data.push({X: i, Y: this.rawData[i]});
@@ -48,7 +47,9 @@ export default {
         var XAxis = chart.xAxes.push(new am4charts.ValueAxis());
         XAxis.renderer.minGridDistance = 40;
 
-        chart.yAxes.push(new am4charts.ValueAxis());
+        var yAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        yAxis.max = Math.max(...this.rawData) * 1.75
+
 
         var series = chart.series.push(new am4charts.LineSeries());
         series.dataFields.valueX = 'X';
@@ -64,7 +65,7 @@ export default {
             for(i = 0; i < this.label2.length; i++){
                 label_data.push({
                     X: this.label2[i][0], 
-                    Y: Math.max(...this.rawData) * 1.5 + 20, 
+                    Y: Math.max(...this.rawData) * 1.5, 
                     color: am4core.color(this.colors[this.label2[i][1]+1])});
                 switch(this.label2[i][1]){
                     case 0: label_data[i].label = 'N'; break;
@@ -96,7 +97,6 @@ export default {
                 labelBullet.label.fill = am4core.color("white");
             }
         }
-
         else if(this.type == 'S1S2'){
             label_data = [];
             for(i = 0; i < this.label[0].length; i++){
@@ -112,6 +112,13 @@ export default {
                     Y: Math.max(...this.rawData) * 1.5,
                     color: am4core.color(this.colors[2])});
                 label_data[i+this.label[0].length].label = '2';
+            }
+            for(i = 0; i < this.label[2].length; i++){
+                label_data.push({
+                    X: this.label[2][i],
+                    Y: Math.max(...this.rawData) * 1.5,
+                    color: am4core.color(this.colors[3])});
+                label_data[i+this.label[0].length+this.label[1].length].label = 'O';
             }
 
             if(label_data.length != 0){

@@ -15,7 +15,7 @@ export default {
     props: ['ECG', 'PCG', 'label_ECG', 'label_Arr', 'label_PCG'],
     data(){
         return {
-            colors: ["black", "#47e0ff", "#ffaf38", "#f71111", "black", "blue", "red", "green"],
+            colors: ["black", "#47e0ff", "#ffaf38", "#f71111", "black", "#47e0ff", "red", "green"],
         }
     },
     mounted(){
@@ -45,6 +45,7 @@ export default {
 
         var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
         valueAxis.height = am4core.percent(50);
+        valueAxis.max = Math.max(...this.ECG) * 1.75
 
         var series = chart.series.push(new am4charts.LineSeries());
         series.dataFields.valueX = 'X';
@@ -60,7 +61,7 @@ export default {
         for(i = 0; i < this.label_Arr.length; i++){
             label_data.push({
                 X: this.label_Arr[i][0], 
-                Y: Math.max(...this.ECG) * 1.5 + 20, 
+                Y: Math.max(...this.ECG) * 1.5, 
                 color: am4core.color(this.colors[this.label_Arr[i][1]+1])});
             switch(this.label_Arr[i][1]){
                 case 0: label_data[i].label = 'N'; break;
@@ -95,6 +96,7 @@ export default {
         var valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
         valueAxis2.height = am4core.percent(50);
         valueAxis2.marginTop = 20;
+        valueAxis2.max = Math.max(...this.PCG) * 1.75
 
         var series3 = chart.series.push(new am4charts.LineSeries());
         series3.dataFields.valueX = 'X';
@@ -122,6 +124,14 @@ export default {
                 color: am4core.color(this.colors[2])});
             label_data2[i+this.label_PCG[0].length].label = '2';
         }
+        for(i = 0; i < this.label_PCG[2].length; i++){
+            label_data2.push({
+                X: this.label_PCG[2][i],
+                Y: Math.max(...this.PCG) * 1.5,
+                color: am4core.color(this.colors[3])});
+            label_data2[i+this.label_PCG[0].length+this.label_PCG[1].length].label = 'O';
+        }
+        
 
         if(label_data2.length != 0){
             var series4 = chart.series.push(new am4charts.LineSeries());

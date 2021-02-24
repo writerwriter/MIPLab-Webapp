@@ -14,7 +14,7 @@
                         placeholder='Enter File Name'
                         :state='nameState'
                         ></b-form-input>
-                        <b-form-invalid-feedback>Filename can only contain alphabet, number, underline or dot</b-form-invalid-feedback>
+                        <b-form-invalid-feedback>Filename can only contain alphabet, number, underline, hyphen and dot</b-form-invalid-feedback>
                     </b-form-group>
 
                     <b-form-group
@@ -66,7 +66,7 @@ export default {
     computed: {
         nameState(){
             if(this.name.length == 0) return false;
-            if(! /^[A-Za-z0-9_.]+$/.test(this.name)) return false;
+            if(! /^[-A-Za-z0-9_.]+$/.test(this.name)) return false;
             //if(this.name.includes('/') || this.name.includes('\\') || this.name.includes('.')) return false;
             return true;
         },

@@ -15,6 +15,7 @@ export default new Vuex.Store({
     sample_rate_PCG: null,
     PQRST: {
       label: null,
+      interval_duration: null,
       isLoading: false,
     },
     Arrhythmia: {
@@ -30,6 +31,12 @@ export default new Vuex.Store({
       label: null,
       isLoading: false,
     },
+    Hazard: {
+      training: null,
+      label: null,
+      isLoading: false,
+    },
+    wavesurfer: null,
   },
   mutations: {
     SaveFile(state, uploadfile){
@@ -44,6 +51,9 @@ export default new Vuex.Store({
     },
     SavePQRSTLabel(state, label){
       state.PQRST.label = label;
+    },
+    SavePQRSTIntervalDuration(state, intervalduration){
+      state.PQRST.interval_duration = intervalduration;
     },
     SaveArrhythmiaLabel(state, label){
       state.Arrhythmia.label = label;
@@ -68,13 +78,17 @@ export default new Vuex.Store({
       else if(type == 'Arrhythmia') state.Arrhythmia.isLoading = false;
       else if(type == 'Abnormal') state.Abnormal.isLoading = false;
       else if(type == 'S1S2') state.S1S2.isLoading = false;
+      else if(type == 'hazard') state.Hazard.isLoading = false;
     },
     Uploading(state){
       state.isLoading = true;
     },
     Uploaded(state){
       state.isLoading = false;
-    }
+    },
+    SaveWavesurfer(state, wavesurfer){
+      state.wavesurfer = wavesurfer;
+    },
 
   },
   actions: {
@@ -96,6 +110,7 @@ export default new Vuex.Store({
       apiPQRSTResult(data)
       .then(res => {
         commit('SavePQRSTLabel', res.data.label[0]);
+        commit('SavePQRSTIntervalDuration', res.data.interval[0]);
         commit('Loaded', 'PQRST');
       })
       .catch(err => {
@@ -132,7 +147,6 @@ export default new Vuex.Store({
       .catch(err => {
         console.log(err);
       })
-
     }
   },
   modules: {

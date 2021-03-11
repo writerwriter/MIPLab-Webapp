@@ -12,11 +12,6 @@ am4core.useTheme(am4themes_animated);
 export default {
     names: "PlotAbnormal",
     props: ['rawData', 'label'],
-    data() {
-        return {
-            colors: ["black", "red", "green", "blue"],
-        }
-    },
     mounted(){
         var chart = am4core.create(this.$refs.chart, am4charts.XYChart);
         chart.paddingRight = 20;
@@ -71,6 +66,6 @@ export default {
 <style scoped>
 .chart {
   width: 100%;
-  height: 50vh;
+  height: 20vh;
 }
 </style>

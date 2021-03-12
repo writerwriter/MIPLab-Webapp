@@ -13,6 +13,8 @@ export default new Vuex.Store({
     PCG: null,
     sample_rate_ECG: null,
     sample_rate_PCG: null,
+    age: null,
+    gender: null,
     PQRST: {
       label: null,
       interval_duration: null,
@@ -48,6 +50,10 @@ export default new Vuex.Store({
       
       state.sample_rate_ECG = snp.sample_rate_ECG;
       state.sample_rate_PCG = snp.sample_rate_PCG;
+    },
+    SavePatientData(state, info) {
+      state.age = info.age;
+      state.gender = info.gender;
     },
     SavePQRSTLabel(state, label){
       state.PQRST.label = label;

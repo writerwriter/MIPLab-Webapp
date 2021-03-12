@@ -25,7 +25,7 @@
                 <PlotECGnPCG :ECG="this.$store.state.ECG" :PCG="this.$store.state.S1S2.PCG" :label_ECG="this.$store.state.PQRST.label" :label_Arr="this.$store.state.Arrhythmia.label" :label_PCG="this.$store.state.S1S2.label" v-if="this.$store.state.PQRST.label != null && this.$store.state.PQRST.isLoading == false && this.$store.state.Arrhythmia.label != null && this.$store.state.Arrhythmia.isLoading == false && this.$store.state.S1S2.label != null && this.$store.state.S1S2.isLoading == false"></PlotECGnPCG>
                 </b-col>
             <b-col>
-                <b-card class='report_card' v-if="this.$store.state.PQRST.interval_duration != null && this.$store.state.Abnormal.label != null && this.$store.state.S1S2.label != null">
+                <b-card class='report_card' v-if="this.$store.state.PQRST.isLoading == false && this.$store.state.S1S2.isLoading == false && this.$store.state.PQRST.interval_duration != null && this.$store.state.Abnormal.label != null && this.$store.state.S1S2.label != null">
                     <b-table outlined striped responsive :items="interval_duration_table"></b-table>
                     <PlotAbnormal :rawData="this.$store.state.ECG" :label="this.$store.state.Abnormal.label" :type="'Abnormal'" v-if="this.$store.state.Abnormal.label != null && this.$store.state.Abnormal.isLoading == false"></PlotAbnormal>
                 </b-card>
@@ -33,7 +33,7 @@
         </b-row>
         <b-row no-gutters>
             <b-col cols="10">
-                <PCGPlayback v-if="this.$store.state.S1S2.PCG != null"></PCGPlayback>
+                <PCGPlayback v-if="this.$store.state.S1S2.isLoading != true && this.$store.state.S1S2.PCG != null"></PCGPlayback>
             </b-col>
         </b-row>
     </b-container>
@@ -158,12 +158,13 @@ export default {
                                             snapshot_xml.text().then(text=>{
                                                 var parser = new DOMParser();
                                                 var xmlDoc = parser.parseFromString(text, "text/xml");
-                                                console.log(xmlDoc.getElementsByTagName("Gender")[0].childNodes[0].nodeValue);
-                                                console.log(xmlDoc.getElementsByTagName("DateOfBirth")[0].childNodes[0].nodeValue);
+                                                //console.log(xmlDoc.getElementsByTagName("Gender")[0].childNodes[0].nodeValue);
+                                                //console.log(xmlDoc.getElementsByTagName("DateOfBirth")[0].childNodes[0].nodeValue);
                                                 var birth = Date.parse(xmlDoc.getElementsByTagName("DateOfBirth")[0].childNodes[0].nodeValue);
                                                 var today = new Date();
                                                 var age = Math.floor((today - birth) / 86400000 / 365);
-                                                console.log(age);
+                                                //console.log(age);
+                                                store.commit('SavePatientData', {age: age, gender: xmlDoc.getElementsByTagName("Gender")[0].childNodes[0].nodeValue});
                                             })
                                         })
                                     }

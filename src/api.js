@@ -14,16 +14,19 @@ const PQRSTRequest = axios.create({
 
 const ABRequest = axios.create({
   baseURL: 'http://gpu4.miplab.org:8787'
-})
+});
 
 const ArrRequest = axios.create({
   baseURL: 'http://gpu4.miplab.org:8890'
-})
+});
 
 const PCGRequest = axios.create({
   baseURL: 'http://gpu4.miplab.org:8990'
-})
+});
 
+const HazardRequest = axios.create({
+  baseURL: 'http://gpu4.miplab.org:8877'
+});
 
 FileIO.interceptors.request.use((config) => {
   store.commit("Loading");
@@ -52,3 +55,9 @@ export const apiABResult = data => ABRequest.post('/submit_abnormal', data);
 export const apiArrResult = data => ArrRequest.post('/submit_arrhythmia', data);
 
 export const apiPCGResult = data => PCGRequest.post('/submit_S1', data);
+
+export const apiHazardBackground = () => HazardRequest.get('/background');
+
+export const apiHazardHash = () => HazardRequest.get('/hash');
+
+export const apiHazardResult = data => HazardRequest.post('/submit_hazard', data);

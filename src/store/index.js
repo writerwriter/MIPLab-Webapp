@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-import {apiPQRSTResult, apiArrResult, apiABResult, apiPCGResult} from '@/api'
+import {apiPQRSTResult, apiArrResult, apiABResult, apiPCGResult, apiHazardBackground, apiHazardHash, apiHazardResult} from '@/api'
 
 export default new Vuex.Store({
   state: {
@@ -14,7 +14,7 @@ export default new Vuex.Store({
     sample_rate_ECG: null,
     sample_rate_PCG: null,
     age: null,
-    gender: null,
+    sex: null,
     PQRST: {
       label: null,
       interval_duration: null,
@@ -34,8 +34,8 @@ export default new Vuex.Store({
       isLoading: false,
     },
     Hazard: {
-      training: null,
-      label: null,
+      aft_abnormal: {hash: null, cs: null, st: null, ypred: null, label: null},
+      aft_normal: {hash: null, cs: null, st: null, ypred: null, label: null},
       isLoading: false,
     },
     wavesurfer: null,
@@ -53,7 +53,7 @@ export default new Vuex.Store({
     },
     SavePatientData(state, info) {
       state.age = info.age;
-      state.gender = info.gender;
+      state.sex = info.gender;
     },
     SavePQRSTLabel(state, label){
       state.PQRST.label = label;
@@ -73,18 +73,33 @@ export default new Vuex.Store({
     SaveS1S2Label(state, label){
       state.S1S2.label = label;
     },
+    SaveHazardNormal(state, normal){
+      if("hash" in normal) state.Hazard.aft_normal.hash = normal.hash;
+      if("cs" in normal) state.Hazard.aft_normal.cs = normal.cs;
+      if("st" in normal) state.Hazard.aft_normal.st = normal.st;
+      if("ypred" in normal) state.Hazard.aft_normal.ypred = normal.ypred;
+      if("label" in normal) state.Hazard.aft_normal.label = normal.label;
+    },
+    SaveHazardAbnormal(state, abnormal){
+      if("hash" in abnormal) state.Hazard.aft_abnormal.hash = abnormal.hash;
+      if("cs" in abnormal) state.Hazard.aft_abnormal.cs = abnormal.cs;
+      if("st" in abnormal) state.Hazard.aft_abnormal.st = abnormal.st;
+      if("ypred" in abnormal) state.Hazard.aft_abnormal.ypred = abnormal.ypred;
+      if("label" in abnormal) state.Hazard.aft_abnormal.label = abnormal.label;
+    },
     Loading(state, type){
       if(type == 'PQRST') state.PQRST.isLoading = true;
       else if(type == 'Arrhythmia') state.Arrhythmia.isLoading = true;
       else if(type == 'Abnormal') state.Abnormal.isLoading = true;
       else if(type == 'S1S2') state.S1S2.isLoading = true;
+      else if(type == 'Hazard') state.Hazard.isLoading = true;
     },
     Loaded(state, type){
       if(type == 'PQRST') state.PQRST.isLoading = false;
       else if(type == 'Arrhythmia') state.Arrhythmia.isLoading = false;
       else if(type == 'Abnormal') state.Abnormal.isLoading = false;
       else if(type == 'S1S2') state.S1S2.isLoading = false;
-      else if(type == 'hazard') state.Hazard.isLoading = false;
+      else if(type == 'Hazard') state.Hazard.isLoading = false;
     },
     Uploading(state){
       state.isLoading = true;
@@ -103,12 +118,6 @@ export default new Vuex.Store({
         ECG: [state.ECG],
         PCG: [state.PCG],
       }
-      /*
-      var formdata = new FormData();
-
-      formdata.append("ECG", state.ECG);
-      formdata.append("PCG", state.PCG);
-      */
 
       JSON.stringify(data);
       
@@ -149,6 +158,46 @@ export default new Vuex.Store({
         commit('SaveS1S2PCG', res.data.pcg[0][0]);
         commit('SaveS1S2Label', res.data.label);
         commit('Loaded', 'S1S2');
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+      commit('Loading', 'Hazard');
+      apiHazardHash()
+      .then(resHash => {
+        var hazardData = {
+          ECG: [state.ECG],
+          PCG: [state.PCG],
+          age: state.age,
+          sex: state.sex,
+        }
+        apiHazardResult(hazardData)
+        .then(resResult => {
+          commit('SaveHazardNormal', {label: resResult.data.label.ordinary});
+          commit('SaveHazardAbnormal', {label: resResult.data.label.readmit});
+          
+          if(state.Hazard.aft_normal.hash != resHash.data.ordinary || state.Hazard.aft_abnormal.hash != resHash.data.readmit){
+            commit('SaveHazardNormal', {hash: resHash.data.ordinary});
+            commit('SaveHazardAbnormal', {hash: resHash.data.readmit});
+
+            apiHazardBackground()
+              .then(resBackground => {
+                if(resBackground.data.ordinary != -1) commit('SaveHazardNormal', resBackground.data.ordinary);
+                if(resBackground.data.readmit != -1) commit('SaveHazardAbnormal', resBackground.data.readmit);
+                commit('Loaded', 'Hazard');
+              })
+              .catch(err => {
+                console.log(err);
+              })
+          }
+          else{
+            commit('Loaded', 'Hazard');
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        })
       })
       .catch(err => {
         console.log(err);

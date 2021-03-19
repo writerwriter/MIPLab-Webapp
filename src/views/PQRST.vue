@@ -18,9 +18,7 @@
 </template>
 
 <script>
-//import PlotPQRSTSignal from '@/components/PlotPQRSTSignal.vue'
 import PlotSignal from '@/components/PlotSignal.vue'
-//import {apiPQRSTSendUploadFile} from '@/api.js'
 
 export default{
     name: "PQRST",

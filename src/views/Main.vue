@@ -15,25 +15,27 @@
                 <UploadModal></UploadModal>
             </b-col>
         </b-row>
+        <b-row>
+            <b-col cols="12">
+                <img class="loading" src='https://media.tenor.com/images/97cc6a6dc0c7479a293b8071f32fbf74/tenor.gif' v-show="this.$store.state.Arrhythmia.isLoading || this.$store.state.PQRST.isLoading || this.$store.state.S1S2.isLoading || this.$store.state.Abnormal.isLoading">      
+            </b-col>
+        </b-row>
         <b-row no-gutters>
-            <b-col cols="10">
-                <img class="loading" src='https://media.tenor.com/images/97cc6a6dc0c7479a293b8071f32fbf74/tenor.gif' v-show="this.$store.state.Arrhythmia.isLoading || this.$store.state.PQRST.isLoading || this.$store.state.S1S2.isLoading || this.$store.state.Abnormal.isLoading">
+            <b-col cols="12" xl="9">
                 <!--
                 <PlotSignal :rawData="this.$store.state.ECG" :label='this.$store.state.PQRST.label' :label2='this.$store.state.Arrhythmia.label' :type='"PQRST&&Arrhythmia"' v-if='this.$store.state.PQRST.label != null && this.$store.state.PQRST.isLoading == false && this.$store.state.Arrhythmia.label != null && this.$store.state.Arrhythmia.isLoading == false'></PlotSignal>    
                 <PlotSignal :rawData="this.$store.state.S1S2.PCG" :label="this.$store.state.S1S2.label" :type="'S1S2'" v-if="this.$store.state.S1S2.label != null && this.$store.state.S1S2.isLoading == false"></PlotSignal>
                 -->
                 <PlotECGnPCG :ECG="this.$store.state.ECG" :PCG="this.$store.state.S1S2.PCG" :label_ECG="this.$store.state.PQRST.label" :label_Arr="this.$store.state.Arrhythmia.label" :label_PCG="this.$store.state.S1S2.label" v-if="this.$store.state.PQRST.label != null && this.$store.state.PQRST.isLoading == false && this.$store.state.Arrhythmia.label != null && this.$store.state.Arrhythmia.isLoading == false && this.$store.state.S1S2.label != null && this.$store.state.S1S2.isLoading == false"></PlotECGnPCG>
+                <PCGPlayback v-if="this.$store.state.S1S2.isLoading != true && this.$store.state.S1S2.PCG != null"></PCGPlayback>
                 </b-col>
-            <b-col>
+            <b-col cols="12" xl="3">
                 <b-card class='report_card' v-if="this.$store.state.PQRST.isLoading == false && this.$store.state.S1S2.isLoading == false && this.$store.state.PQRST.interval_duration != null && this.$store.state.Abnormal.label != null && this.$store.state.S1S2.label != null">
                     <b-table outlined striped responsive :items="interval_duration_table"></b-table>
                     <PlotAbnormal :rawData="this.$store.state.ECG" :label="this.$store.state.Abnormal.label" :type="'Abnormal'" v-if="this.$store.state.Abnormal.label != null && this.$store.state.Abnormal.isLoading == false"></PlotAbnormal>
+                    <PlotHazard :data="this.$store.state.Hazard.aft_normal" :type="'ordinary'" v-if="this.$store.state.Hazard.isLoading == false && this.$store.state.Hazard.aft_normal.ypred != null"></PlotHazard>
+                    <PlotHazard :data="this.$store.state.Hazard.aft_abnormal" :type="'readmit'" v-if="this.$store.state.Hazard.isLoading == false && this.$store.state.Hazard.aft_abnormal.ypred != null"></PlotHazard>
                 </b-card>
-            </b-col>
-        </b-row>
-        <b-row no-gutters>
-            <b-col cols="10">
-                <PCGPlayback v-if="this.$store.state.S1S2.isLoading != true && this.$store.state.S1S2.PCG != null"></PCGPlayback>
             </b-col>
         </b-row>
     </b-container>
@@ -46,6 +48,7 @@ import {apiFileUpload} from '@/api.js'
 //import PlotSignal from '@/components/PlotSignal.vue'
 import PlotAbnormal from '@/components/PlotAbnormal.vue'
 import PlotECGnPCG from '@/components/PlotECGnPCG.vue'
+import PlotHazard from '@/components/PlotHazard.vue'
 import UploadModal from '@/components/UploadModal.vue'
 import PCGPlayback from '@/components/PCGPlayback.vue'
 
@@ -57,6 +60,7 @@ export default {
         PlotECGnPCG,
         UploadModal,
         PCGPlayback,
+        PlotHazard,
     },
     data(){
         return{
@@ -161,7 +165,7 @@ export default {
                                                 //console.log(xmlDoc.getElementsByTagName("Gender")[0].childNodes[0].nodeValue);
                                                 //console.log(xmlDoc.getElementsByTagName("DateOfBirth")[0].childNodes[0].nodeValue);
                                                 var birth = Date.parse(xmlDoc.getElementsByTagName("DateOfBirth")[0].childNodes[0].nodeValue);
-                                                var today = new Date();
+                                                var today = Date.parse(xmlDoc.getElementsByTagName("Created")[0].childNodes[0].nodeValue);
                                                 var age = Math.floor((today - birth) / 86400000 / 365);
                                                 //console.log(age);
                                                 store.commit('SavePatientData', {age: age, gender: xmlDoc.getElementsByTagName("Gender")[0].childNodes[0].nodeValue});

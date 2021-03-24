@@ -4,28 +4,27 @@ import store from './store';
 //const proxyurl = 'https://cors-anywhere.herokuapp.com/'
 
 const FileIO = axios.create({
-  baseURL: 'http://gpu4.miplab.org:8899'
+  baseURL: '/fileIO'
 });
 
-
 const PQRSTRequest = axios.create({
-  baseURL: 'http://gpu4.miplab.org:8899'
+  baseURL: '/PQRST'
 });
 
 const ABRequest = axios.create({
-  baseURL: 'http://gpu4.miplab.org:8787'
+  baseURL: '/Abnormal'
 });
 
 const ArrRequest = axios.create({
-  baseURL: 'http://gpu4.miplab.org:8890'
+  baseURL: '/Arrhythmia'
 });
 
 const PCGRequest = axios.create({
-  baseURL: 'http://gpu4.miplab.org:8990'
+  baseURL: '/PCG'
 });
 
 const HazardRequest = axios.create({
-  baseURL: 'http://gpu4.miplab.org:8877'
+  baseURL: '/Hazard'
 });
 
 FileIO.interceptors.request.use((config) => {

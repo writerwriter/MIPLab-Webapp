@@ -57,6 +57,7 @@ export default {
         })
 
         chart.responsive.enabled = true;
+        chart.responsive.useDefault = false;
 
         this.chart = chart;
     },
@@ -66,6 +67,6 @@ export default {
 <style scoped>
 .chart {
   width: 100%;
-  height: 20vh;
+  height: 15vh;
 }
 </style>

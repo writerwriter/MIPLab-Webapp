@@ -31,6 +31,7 @@
                 </b-col>
             <b-col cols="12" xl="3">
                 <b-card class='report_card' v-if="this.$store.state.PQRST.isLoading == false && this.$store.state.S1S2.isLoading == false && this.$store.state.PQRST.interval_duration != null && this.$store.state.Abnormal.label != null && this.$store.state.S1S2.label != null">
+                    <b-table outlined responsive :items="[{age: this.$store.state.age, sex: this.$store.state.sex}]"></b-table>
                     <b-table outlined striped responsive :items="interval_duration_table"></b-table>
                     <PlotAbnormal :rawData="this.$store.state.ECG" :label="this.$store.state.Abnormal.label" :type="'Abnormal'" v-if="this.$store.state.Abnormal.label != null && this.$store.state.Abnormal.isLoading == false"></PlotAbnormal>
                     <PlotHazard :data="this.$store.state.Hazard.aft_normal" :type="'ordinary'" v-if="this.$store.state.Hazard.isLoading == false && this.$store.state.Hazard.aft_normal.ypred != null"></PlotHazard>
@@ -116,7 +117,7 @@ export default {
             var variance = 0;
             for(i = 0; i < emat.length; i++) variance += Math.pow(emat[i]-mean, 2) / emat.length;
             return [mean, variance]
-        }
+        },
     },
     methods: {
         OnFileUpload(e){

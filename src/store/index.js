@@ -30,6 +30,7 @@ export default new Vuex.Store({
     },
     S1S2: {
       PCG: null,
+      PCG_resampled: null,
       label: null,
       isLoading: false,
     },
@@ -69,6 +70,9 @@ export default new Vuex.Store({
     },
     SaveS1S2PCG(state, signal){
       state.S1S2.PCG = signal;
+    },
+    SaveS1S2PCGResampled(state, signal){
+      state.S1S2.PCG_resampled = signal;
     },
     SaveS1S2Label(state, label){
       state.S1S2.label = label;
@@ -157,6 +161,7 @@ export default new Vuex.Store({
       .then(res => {
         commit('SaveS1S2PCG', res.data.pcg[0][0]);
         commit('SaveS1S2Label', res.data.label);
+        commit('SaveS1S2PCGResampled', res.data.resample_pcg);
         commit('Loaded', 'S1S2');
       })
       .catch(err => {

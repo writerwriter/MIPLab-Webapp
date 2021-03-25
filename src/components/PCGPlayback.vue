@@ -23,12 +23,7 @@ export default {
             responsive: true,
         });
         store.commit('SaveWavesurfer', wavesurfer);
-        var tmp = new Array(store.state.S1S2.PCG.length*6);
-        for(var i = 0; i < tmp.length; i++){
-            tmp[i] = store.state.S1S2.PCG[Math.floor(i/6)] / 3;
-        }
-        var buffer = new Float32Array(tmp);
-        var audioBuffer = createBuffer(buffer, {sampleRate: 3000});
+        var audioBuffer = createBuffer(new Float32Array(store.state.S1S2.PCG_resampled), {sampleRate: 3000});
 
         store.state.wavesurfer.loadDecodedBuffer(audioBuffer);
     },

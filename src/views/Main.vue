@@ -146,10 +146,6 @@ export default {
                                                     store.commit('SaveSnpData', res.data);
                                                     store.commit('Uploaded');
                                                     store.dispatch('AllTaskCalc');
-                                                    //var blob = new window.Blob([new Float32Array(store.state.PCG)]);
-                                                    //wavesurfer.loadBlob(blob);
-
-                                                    //wavesurfer.loadArrayBuffer(new Float32Array(store.state.PCG).buffer);
                                                 })
                                                 .catch(res => {
                                                     console.log(res);
@@ -163,12 +159,9 @@ export default {
                                             snapshot_xml.text().then(text=>{
                                                 var parser = new DOMParser();
                                                 var xmlDoc = parser.parseFromString(text, "text/xml");
-                                                //console.log(xmlDoc.getElementsByTagName("Gender")[0].childNodes[0].nodeValue);
-                                                //console.log(xmlDoc.getElementsByTagName("DateOfBirth")[0].childNodes[0].nodeValue);
                                                 var birth = Date.parse(xmlDoc.getElementsByTagName("DateOfBirth")[0].childNodes[0].nodeValue);
                                                 var today = Date.parse(xmlDoc.getElementsByTagName("Created")[0].childNodes[0].nodeValue);
                                                 var age = Math.floor((today - birth) / 86400000 / 365);
-                                                //console.log(age);
                                                 store.commit('SavePatientData', {age: age, gender: xmlDoc.getElementsByTagName("Gender")[0].childNodes[0].nodeValue});
                                             })
                                         })

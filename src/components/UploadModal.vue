@@ -67,7 +67,6 @@ export default {
         nameState(){
             if(this.name.length == 0) return false;
             if(! /^[-A-Za-z0-9_.]+$/.test(this.name)) return false;
-            //if(this.name.includes('/') || this.name.includes('\\') || this.name.includes('.')) return false;
             return true;
         },
         tagState(){
@@ -96,7 +95,6 @@ export default {
                 .catch(err=>{
                     console.log(err);
                 })
-                //console.log(this.name, this.selectedTag);
             }
             else{
                 if(store.state.file == null){

@@ -30,6 +30,7 @@ export default {
         XAxis.min = X_min;
         XAxis.max = X_max;
         XAxis.title.text = this.type=='readmit' ? 'predicted readmission time' : 'predicted event time';
+        XAxis.renderer.labels.template.opacity = 0.5;
 
         var line = XAxis.axisRanges.create();
         line.value = this.data['label'];
@@ -41,6 +42,11 @@ export default {
         line.grid.strokeWidth = 2;
         line.grid.strokeOpacity = 1;
         line.grid.above = true;
+        line.label.text = (Math.round(this.data['label'] * 100)/100).toString();
+        line.label.verticalCenter = "bottom";
+        line.label.opacity = 1;
+        line.label.fontWeight = "bold";
+        line.label.fill = am4core.color(colorGradient.getColor(Math.max(1, Math.min(colorGradient.getArray().length, Math.floor(((this.data['label']-startPoint) / range) * colorGradient.getArray().length)+1))));
 
         var YAxis = chart.yAxes.push(new am4charts.ValueAxis());
         YAxis.title.text = 'event time (days)';
@@ -70,6 +76,6 @@ export default {
 <style scoped>
 .chart {
     width: 100%;
-    height: 10vw;
+    aspect-ratio: 16/8;
 }
 </style>
